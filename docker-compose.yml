@@ -1,0 +1,143 @@
+services:
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: dhuan-opensearch
+    environment:
+      - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+    ports: ["9200:9200"]
+    volumes: ["os-data:/usr/share/opensearch/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  localstack:
+    image: localstack/localstack:3
+    container_name: dhuan-localstack
+    privileged: true
+    ports: ["4566:4566"]
+    environment:
+      - SERVICES=lambda,s3,dynamodb,sns,sqs,stepfunctions,apigateway,events,locationservice,sagemaker,runtime,iam,cloudwatch,logs,ses
+      - DEBUG=0
+      - AWS_DEFAULT_REGION=ap-south-1
+      - LAMBDA_REMOTE_DOCKER=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - localstack-data:/var/lib/localstack
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:4566/_localstack/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  postgis:
+    image: postgis/postgis:15-3.4-alpine
+    container_name: dhuan-postgis
+    environment:
+      POSTGRES_DB: dhuan
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+    ports: ["5432:5432"]
+    volumes: ["pg-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d dhuan"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: dhuan-redis
+    ports: ["6379:6379"]
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  opensearch-seed:
+    image: curlimages/curl:8.8.0
+    container_name: dhuan-os-seed
+    depends_on:
+      opensearch: { condition: service_healthy }
+    volumes:
+      - ./infra/scripts/seed_sources.jsonl:/seed/sources.jsonl:ro
+    entry: [""]
+    command:
+      - /bin/sh
+      - -c
+      - "sleep 2; while ! curl -sf http://opensearch:9200 >/dev/null; do sleep 1; done; curl -sf -XDELETE http://opensearch:9200/pollution_sources >/dev/null || true; curl -sf -XPUT http://opensearch:9200/pollution_sources -H 'Content-Type: application/json' -d '{\"mappings\":{\"properties\":{\"location\":{\"type\":\"geo_point\"},\"source_type\":{\"type\":\"keyword\"},\"name\":{\"type\":\"text\",\"fields\":{\"keyword\":{\"type\":\"keyword\"}}},\"ward\":{\"type\":\"keyword\"},\"active\":{\"type\":\"boolean\"},\"fire_count_24h\":{\"type\":\"integer\"},\"osm_id\":{\"type\":\"keyword\"},\"last_updated\":{\"type\":\"date\"}}}}'; curl -sf -XPOST http://opensearch:9200/_bulk -H 'Content-Type: application/x-ndjson' --data-binary @/seed/sources.jsonl >/dev/null; curl -sf -XPOST http://opensearch:9200/pollution_sources/_refresh >/dev/null; echo seeded;"
+    restart: "no"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dhuan-backend
+    env_file: .env
+    ports: ["8000:8000"]
+    depends_on:
+      opensearch: { condition: service_healthy }
+      localstack: { condition: service_healthy }
+      postgis: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    volumes:
+      - ./backend:/app
+      - ./ml/models:/models:ro
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8000/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  pipeline-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dhuan-pipeline
+    env_file: .env
+    depends_on:
+      opensearch: { condition: service_healthy }
+      localstack: { condition: service_healthy }
+    volumes:
+      - ./backend:/app
+    # Runs the hourly ingestion on a 60s loop locally (production uses EventBridge).
+    command: python -m app.pipeline.local_scheduler
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dhuan-frontend
+    env_file: .env
+    environment:
+      - API_UPSTREAM=http://backend:8000
+      - NEXT_TELEMETRY_DISABLED=1
+    ports: ["3000:3000"]
+    depends_on:
+      backend: { condition: service_started }
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  os-data:
+  localstack-data:
+  pg-data:
+  redis-data:

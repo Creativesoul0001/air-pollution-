@@ -1,0 +1,24 @@
+{ "index": { "_index": "pollution_sources", "_id": "ghazipur-landfill" } }
+{ "location": { "lat": 28.6219, "lon": 77.3264 }, "source_type": "landfill", "name": "Ghazipur Landfill", "ward": "Mayur Vihar", "active": true, "fire_count_24h": 0, "osm_id": "way/ghazipur", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "bhalswa-landfill" } }
+{ "location": { "lat": 28.7549, "lon": 77.1537 }, "source_type": "landfill", "name": "Bhalswa Landfill", "ward": "Model Town", "active": true, "fire_count_24h": 0, "osm_id": "way/bhalswa", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "okhla-landfill" } }
+{ "location": { "lat": 28.5326, "lon": 77.2750 }, "source_type": "landfill", "name": "Okhla Landfill", "ward": "Okhla", "active": true, "fire_count_24h": 0, "osm_id": "way/okhla", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "anand-vihar-industrial" } }
+{ "location": { "lat": 28.6469, "lon": 77.3152 }, "source_type": "industrial", "name": "Anand Vihar Industrial Cluster", "ward": "Anand Vihar", "active": true, "osm_id": "rel/anand-vihar", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "nariana-industrial" } }
+{ "location": { "lat": 28.5844, "lon": 77.2996 }, "source_type": "industrial", "name": "Naraina Industrial Area", "ward": "Naraina", "active": true, "osm_id": "rel/naraina", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "wazirpur-industrial" } }
+{ "location": { "lat": 28.6989, "lon": 77.1614 }, "source_type": "industrial", "name": "Wazirpur Industrial Area", "ward": "Wazirpur", "active": true, "osm_id": "rel/wazirpur", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "mayapuri-industrial" } }
+{ "location": { "lat": 28.6252, "lon": 77.1259 }, "source_type": "industrial", "name": "Mayapuri Industrial", "ward": "Mayapuri", "active": true, "osm_id": "rel/mayapuri", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "cp-junction" } }
+{ "location": { "lat": 28.6315, "lon": 77.2167 }, "source_type": "major_junction", "name": "Connaught Place Junction", "ward": "Connaught Place", "active": true, "osm_id": "node/cp", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "ito-junction" } }
+{ "location": { "lat": 28.6280, "lon": 77.2405 }, "source_type": "major_junction", "name": "ITO Junction", "ward": "ITO", "active": true, "osm_id": "node/ito", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "rajendra-place-construction" } }
+{ "location": { "lat": 28.6422, "lon": 77.1784 }, "source_type": "construction", "name": "Rajendra Place Metro Cluster", "ward": "Rajendra Place", "active": true, "osm_id": "way/rp-construction", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "central-vista-construction" } }
+{ "location": { "lat": 28.6159, "lon": 77.2150 }, "source_type": "construction", "name": "Central Vista Project", "ward": "Lutyens", "active": true, "osm_id": "way/cv", "last_updated": "2026-10-01T00:00:00Z" }
+{ "index": { "_index": "pollution_sources", "_id": "dwarka-construction" } }
+{ "location": { "lat": 28.5921, "lon": 77.0460 }, "source_type": "construction", "name": "Dwarka Expressway Corridor", "ward": "Dwarka", "active": true, "osm_id": "way/dwarka-exp", "last_updated": "2026-10-01T00:00:00Z" }
