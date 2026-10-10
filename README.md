@@ -68,6 +68,55 @@ docs/      Architecture, API, data model, agent + ML design, runbook
 | [`AGENTS.md`](AGENTS.md) | Rules for AI agents working in this repo |
 | [`SKILL.md`](SKILL.md) | Reusable skill definition |
 
+## Local run — backend + real Delhi NCR dataset
+
+The backend ingests a **real, deduplicated** Delhi NCR location index from **OpenStreetMap** (Overpass, ODbL) and attaches **real PM2.5 readings** from **Open-Meteo** (keyless, batched). On first import we recorded **19,544 unique locations** (hospitals, major roads, parks, schools, metro stations, colleges, neighbourhoods, junctions, landmarks, cities) with **300 live pollution observations**. Counts are always read from the database — never hardcoded — and vary with each run.
+
+```bash
+# 1) Backend deps (Python 3.11+)
+cd backend
+python -m venv .venv
+.venv/Scripts/activate            # Windows
+pip install -r requirements.txt
+
+# 2) Ingest real locations + observations (repeatable & deduplicated)
+python -m app.pipeline.run         # prints real counts; safe to re-run
+
+# 3) Run the API (defaults to sqlite:///./data/dhuan.db)
+uvicorn app.main:app --port 8000   # health: /api/v1/health
+
+# 4) Frontend proxies /api/* to API_UPSTREAM (default http://127.0.0.1:8000)
+cd ../frontend && npm run dev      # http://localhost:3000
+```
+
+**Endpoints**
+- `GET /api/v1/locations/stats` — totals, with-observations, cities, categories, last update
+- `GET /api/v1/locations/search?q=` — real name search over the index
+- `GET /api/v1/health`
+
+**Tests:** `cd backend && pytest` (11) · `cd frontend && npm run test:unit` (8)
+
+**Data integrity:** geographic coverage (indexed points) is reported separately from environmental coverage (points with a real reading). Model-based estimates report `0` until an ML model is deployed; the street-level estimate/attribution model is not deployed yet, so the UI shows a clearly-labelled development fixture for that panel only.
+
+## Dashboard & data endpoints
+
+The frontend is a premium dark air-quality intelligence dashboard (navy/teal) with **Map · Investigate · Analytics · Data Sources · About** views. The map uses keyless **OpenStreetMap** tiles darkened via raster paint (no API key, no watermark, correct attribution), with layers for real PM2.5 observation points and mapped POIs, a wind overlay, fullscreen, scale bar and a CPCB-band legend.
+
+New real endpoints (`backend`):
+- `GET /api/v1/airquality/current?lat&lon` — live PM2.5 / PM10 / NO₂ / SO₂ / O₃ / CO from Open-Meteo (model assimilation — **not** a ground station).
+- `GET /api/v1/weather/current?lat&lon` — wind speed/direction, temperature, humidity (Open-Meteo).
+- `GET /api/v1/locations/points?categories=` — capped POI points for map layers.
+- `GET /api/v1/locations/observations/points` — latest stored PM2.5 observation per location.
+- `GET /api/v1/locations/{id}` — location detail + latest observation.
+
+AQI shown is the **CPCB PM2.5 sub-index** computed from PM2.5 with documented breakpoints. Every reading carries a data-status label — **Live observation / Cached observation / Model estimate / Development fixture / Unavailable**. Source attribution, validated risk maps, and persistent action tracking are **not** implemented and are rendered as *unavailable* rather than fabricated.
+
+```bash
+cd backend && uvicorn app.main:app --port 8000
+cd frontend && npm run build && npm run start   # or: npm run dev
+# frontend proxies /api/* to API_UPSTREAM (default http://127.0.0.1:8000)
+```
+
 ## Build order & the non-negotiables
 Read [`MASTER_PROMPT.md`](MASTER_PROMPT.md) — the full engineering brief. Key rules:
 - No fake routes. Every route validates, logs, and handles errors.

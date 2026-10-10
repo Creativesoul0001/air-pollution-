@@ -16,6 +16,14 @@ coverage.xml
 model_artifacts/
 *.pkl
 *.joblib
+
+# Local virtualenvs & SQLite databases (never committed)
+.venv/
+**/.venv/
+data/
+*.db
+*.sqlite3
+
 .DS_Store
 
 # ===== Frontend =====
