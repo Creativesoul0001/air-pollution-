@@ -88,8 +88,8 @@ export default function Page() {
             <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                <strong>Backend offline — sample data shown.</strong> Start the backend (or
-                <code className="mx-1">make dev</code>) to see live estimates.
+                <strong>Live data unavailable — development fixture shown (not real readings).</strong>{" "}
+                This backend/ML is not deployed yet. Connect it for live, source-attributed estimates.
               </span>
             </div>
           )}

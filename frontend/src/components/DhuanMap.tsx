@@ -14,7 +14,14 @@ interface Props {
   contributors: AttributionContributor[];
 }
 
-const CART0 = "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+// Keyless, real raster tiles with correct attribution. No API key, no fake tiles.
+const OSM_RASTER = [
+  "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+];
+const OSM_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors';
 
 export function DhuanMap({ lat, lon, windDirDeg, contributors }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,15 +39,17 @@ export function DhuanMap({ lat, lon, windDirDeg, contributors }: Props) {
         sources: {
           base: {
             type: "raster",
-            tiles: [CART0],
+            tiles: OSM_RASTER,
             tileSize: 256,
-            attribution: "© OpenStreetMap contributors © CARTO",
+            maxzoom: 19,
+            attribution: OSM_ATTRIBUTION,
           },
         },
         layers: [{ id: "base", type: "raster", source: "base" }],
       },
       center: [lon, lat],
       zoom: 12,
+      maxZoom: 19,
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     mapRef.current = map;
