@@ -1,4 +1,4 @@
-import { cn, formatPM25, categoryOf } from "./utils";
+import { cn, formatPM25, formatCount, categoryOf } from "./utils";
 import { haversineKm, conePolygon, destPointGeoJSON } from "./geo";
 
 describe("cn", () => {
@@ -11,6 +11,13 @@ describe("formatPM25", () => {
   it("rounds large values and keeps one decimal below 100", () => {
     expect(formatPM25(198.6)).toBe("199");
     expect(formatPM25(87.42)).toBe("87.4");
+  });
+});
+
+describe("formatCount", () => {
+  it("uses Indian digit grouping", () => {
+    expect(formatCount(19544)).toBe("19,544");
+    expect(formatCount(0)).toBe("0");
   });
 });
 

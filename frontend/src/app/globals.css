@@ -2,19 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --dd-bg: #03101f;
+  --dd-header: #06172a;
+  --dd-card: #0b1b30;
+  --dd-elev: #10233b;
+  --dd-border: #1b3550;
+  --dd-accent: #00e5a0;
+  --dd-accent2: #22b8ff;
+  --dd-purple: #8b5cf6;
+  --dd-warn: #f59e0b;
+  --dd-crit: #f04452;
+  --dd-text: #f1f7ff;
+  --dd-muted: #9cb2cd;
+  color-scheme: dark;
+}
+
 @layer base {
-  :root {
-    color-scheme: light dark;
-  }
   html,
   body {
     height: 100%;
   }
   body {
-    @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+    background: var(--dd-bg);
+    color: var(--dd-text);
+    @apply font-sans antialiased;
+  }
+  ::selection {
+    background: rgba(0, 229, 160, 0.35);
   }
 }
 
+/* Respect reduced-motion for the whole dashboard. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Map attribution readable on the dark theme. */
 .maplibregl-ctrl-attrib {
   font-size: 10px;
+  background: rgba(6, 23, 42, 0.8) !important;
+  color: var(--dd-muted);
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--dd-muted);
+}
+.maplibregl-ctrl-group {
+  background: var(--dd-elev) !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top-color: var(--dd-border) !important;
+}
+.maplibregl-ctrl button .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(1.6);
 }

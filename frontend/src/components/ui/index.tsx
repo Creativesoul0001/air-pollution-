@@ -14,9 +14,11 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variants: Record<string, string> = {
-    primary: "bg-slate-900 text-white hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200",
-    outline: "border border-slate-300 bg-white text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800",
-    ghost: "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800",
+    primary:
+      "bg-dd-accent text-[#04121c] hover:brightness-110 disabled:hover:brightness-100",
+    outline:
+      "border border-dd-border text-dd-text hover:bg-dd-elev",
+    ghost: "text-dd-muted hover:bg-dd-elev hover:text-dd-text",
   };
   const sizes: Record<string, string> = {
     sm: "h-8 px-3 text-sm",
@@ -25,7 +27,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:opacity-50",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-[filter,background-color,color] disabled:opacity-50",
         variants[variant],
         sizes[size],
         className
@@ -40,7 +42,7 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        "rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900",
+        "rounded-2xl border border-dd-border bg-dd-card p-4 shadow-sm",
         className
       )}
       {...props}
@@ -49,22 +51,25 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
 }
 
 export function CardTitle({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return <h2 className={cn("text-sm font-semibold text-slate-500 dark:text-slate-400", className)} {...props} />;
+  return (
+    <h2 className={cn("text-sm font-semibold text-dd-muted uppercase tracking-wide", className)} {...props} />
+  );
 }
 
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("mb-2", className)} {...props} />;
+  return <div className={cn("mb-2 flex items-center justify-between", className)} {...props} />;
 }
 
 /* ---------------------------------- Badge --------------------------------- */
-type BadgeTone = "neutral" | "good" | "moderate" | "poor" | "veryPoor" | "severe";
+type BadgeTone = "neutral" | "good" | "moderate" | "poor" | "veryPoor" | "severe" | "accent";
 const badgeTones: Record<BadgeTone, string> = {
-  neutral: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200",
-  good: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100",
-  moderate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100",
-  poor: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
-  veryPoor: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
-  severe: "bg-red-200 text-red-900 dark:bg-red-950 dark:text-red-100",
+  neutral: "bg-dd-elev text-dd-muted border border-dd-border",
+  good: "bg-[rgba(0,229,160,0.15)] text-dd-accent border border-[rgba(0,229,160,0.35)]",
+  moderate: "bg-[rgba(245,158,11,0.15)] text-dd-warn border border-[rgba(245,158,11,0.35)]",
+  poor: "bg-[rgba(249,115,22,0.15)] text-[#fdba74] border border-[rgba(249,115,22,0.35)]",
+  veryPoor: "bg-[rgba(240,68,82,0.15)] text-dd-crit border border-[rgba(240,68,82,0.35)]",
+  severe: "bg-[rgba(240,68,82,0.25)] text-dd-crit border border-[rgba(240,68,82,0.5)]",
+  accent: "bg-[rgba(34,184,255,0.15)] text-dd-accent2 border border-[rgba(34,184,255,0.35)]",
 };
 export function Badge({
   tone = "neutral",
@@ -85,12 +90,7 @@ export function Badge({
 
 /* -------------------------------- Skeleton -------------------------------- */
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-slate-200 dark:bg-slate-800", className)}
-      {...props}
-    />
-  );
+  return <div className={cn("animate-pulse rounded-md bg-dd-elev", className)} {...props} />;
 }
 
 /* ---------------------------------- Tabs ---------------------------------- */
@@ -104,16 +104,18 @@ export function Tabs<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1 dark:border-slate-800 dark:bg-slate-800/50">
+    <div role="tablist" className="inline-flex flex-wrap rounded-lg border border-dd-border bg-dd-elev p-1">
       {items.map((it) => (
         <button
           key={it.value}
+          role="tab"
+          aria-selected={value === it.value}
           onClick={() => onChange(it.value)}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
             value === it.value
-              ? "bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-white"
-              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+              ? "bg-dd-card text-dd-text shadow-sm"
+              : "text-dd-muted hover:text-dd-text"
           )}
         >
           {it.icon}
@@ -136,16 +138,38 @@ export function Accordion({
 }) {
   const [open, setOpen] = React.useState(defaultOpen);
   return (
-    <div className="rounded-xl border border-slate-200 dark:border-slate-800">
+    <div className="rounded-xl border border-dd-border">
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium"
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-dd-text"
       >
         {title}
-        <span className="text-slate-400">{open ? "−" : "+"}</span>
+        <span className="text-dd-muted">{open ? "−" : "+"}</span>
       </button>
-      {open && <div className="border-t border-slate-200 px-4 py-3 text-sm dark:border-slate-800">{children}</div>}
+      {open && (
+        <div className="border-t border-dd-border px-4 py-3 text-sm text-dd-text/90">{children}</div>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------- Progress -------------------------------- */
+export function Gauge({
+  value,
+  max,
+  color = "var(--dd-accent)",
+  className,
+}: {
+  value: number;
+  max: number;
+  color?: string;
+  className?: string;
+}) {
+  const pct = Math.max(0, Math.min(100, (value / max) * 100));
+  return (
+    <div className={cn("h-2 w-full overflow-hidden rounded-full bg-dd-elev", className)}>
+      <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
     </div>
   );
 }

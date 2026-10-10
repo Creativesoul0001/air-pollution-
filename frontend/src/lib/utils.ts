@@ -9,6 +9,10 @@ export function formatPM25(v: number): string {
   return v >= 100 ? Math.round(v).toString() : v.toFixed(1);
 }
 
+export function formatCount(v: number): string {
+  return v.toLocaleString("en-IN");
+}
+
 export type AqiBand = "good" | "moderate" | "poor" | "veryPoor" | "severe";
 
 /** CPCB-style PM2.5 banding (24h). */
