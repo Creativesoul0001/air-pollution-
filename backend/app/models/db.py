@@ -28,6 +28,7 @@ class Base(DeclarativeBase):
 
 def init_db() -> None:
     # Import models so their tables are registered on the metadata.
+    import app.models.action  # noqa: F401
     import app.models.location  # noqa: F401
 
     Base.metadata.create_all(bind=engine)

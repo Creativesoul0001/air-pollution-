@@ -32,6 +32,18 @@ class Settings:
         "OPEN_METEO_BASE", "https://air-quality-api.open-meteo.com/v1/air-quality"
     )
 
+    # Real ground monitoring stations. Sensor.Community is open/keyless; WAQI requires a
+    # personal data token. Without either, the adapter reports `unavailable` (never fabricated).
+    waqi_token: str = os.getenv("WAQI_TOKEN", "")
+    sensor_community_url: str = os.getenv(
+        "SENSOR_COMMUNITY_URL", "https://data.sensor.community/airrohr/v1/filter"
+    )
+    ground_radius_km: float = float(os.getenv("GROUND_RADIUS_KM", "10"))
+
+    # Evidence-based source investigation.
+    sources_radius_km: float = float(os.getenv("SOURCES_RADIUS_KM", "10"))
+    sources_limit: int = int(os.getenv("SOURCES_LIMIT", "200"))
+
     cors_origins: list[str] = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 
 

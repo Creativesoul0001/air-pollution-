@@ -23,7 +23,10 @@ def _prepare_db():
 @pytest.fixture(autouse=True)
 def _reset_tables():
     s = SessionLocal()
-    for model in (PollutionObservation, Location, DatasetMeta):
+    from app.models.action import Action, ActionEvent, Verification
+    from app.models.location import DatasetMeta, Location, PollutionObservation
+
+    for model in (ActionEvent, Verification, Action, PollutionObservation, Location, DatasetMeta):
         s.execute(model.__table__.delete())
     s.commit()
     s.close()
