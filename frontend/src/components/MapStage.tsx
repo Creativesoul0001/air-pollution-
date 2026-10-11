@@ -11,8 +11,10 @@ import { aqiFromPm25, windDirToCompass } from "@/lib/aq";
 import type { ObsPoint, PointRow } from "@/lib/types";
 import { Button, Badge } from "@/components/ui";
 
-// Keyless OpenStreetMap tiles, darkened via raster paint for the dark dashboard
-// (still real OSM tiles with correct attribution; no watermark, no API key).
+// Clean, LIGHT OpenStreetMap tiles (real roads, water, parks, boundaries, city labels).
+// Keyless, correct attribution, no watermark and no dark overlay — so state boundaries,
+// city labels, major/local roads, parks and water bodies all stay clearly distinguishable
+// against the dark navy dashboard chrome.
 const OSM_RASTER = [
   "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
   "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -61,11 +63,6 @@ export function MapStage() {
             id: "base",
             type: "raster",
             source: "base",
-            paint: {
-              "raster-brightness-max": 0.42,
-              "raster-saturation": -0.4,
-              "raster-contrast": 0.08,
-            },
           },
         ],
       },

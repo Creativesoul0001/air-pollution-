@@ -17,6 +17,7 @@ import { useDashboard } from "@/lib/dashboard";
 import { POLLUTANTS, aqiFromPm25, pollutantMeta, windDirToCompass, hrsAgo } from "@/lib/aq";
 import { Badge, Button, Card, CardTitle, Gauge, Skeleton, Tabs } from "@/components/ui";
 import { DataAccuracyCard } from "./DataAccuracyCard";
+import { useStations } from "@/hooks/useStations";
 
 type Tab = "live" | "sources" | "actions" | "advice";
 
@@ -51,6 +52,7 @@ export function LocationPanel() {
 
   const pm25 = air?.pollutants?.pm2_5 ?? null;
   const aqi = pm25 != null ? aqiFromPm25(pm25) : null;
+  const { data: ground, loading: groundLoading } = useStations(coord.lat, coord.lon);
 
   return (
     <Card className="flex h-auto min-h-0 flex-col !p-0 lg:h-full">
@@ -138,6 +140,43 @@ export function LocationPanel() {
                       );
                     })}
                   </div>
+                </div>
+
+                <div>
+                  <CardTitle className="mb-2 flex items-center gap-1.5">
+                    <Radio className="h-3.5 w-3.5 text-dd-accent2" /> Ground monitoring
+                  </CardTitle>
+                  {groundLoading ? (
+                    <Skeleton className="h-12 w-full" />
+                  ) : ground?.status === "ok" ? (
+                    <ul className="space-y-1.5 text-xs">
+                      {ground.stations.map((s, i) => (
+                        <li key={i} className="rounded-lg border border-dd-border p-2">
+                          <div className="flex items-center justify-between">
+                            <strong className="text-dd-text">{s.station}</strong>
+                            <Badge tone="good">Ground</Badge>
+                          </div>
+                          <p className="text-dd-muted">
+                            {s.network} · {s.distance_km.toFixed(2)} km ·{" "}
+                            {s.timestamp ? new Date(s.timestamp).toLocaleString() : "time n/a"}
+                          </p>
+                          <div className="mt-0.5 flex flex-wrap gap-2">
+                            {s.readings.map((r) => (
+                              <span key={r.pollutant} className="tabular-nums">
+                                {r.pollutant.toUpperCase()} <strong>{r.value}</strong> {r.unit}
+                              </span>
+                            ))}
+                          </div>
+                          <p className="mt-0.5 text-[10px] text-dd-muted">Provenance: {s.provenance.source}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-dd-muted">
+                      No ground station readings reachable — the values above are model estimates,
+                      not monitoring measurements.
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">

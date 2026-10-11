@@ -3,6 +3,7 @@ export type Lang = "en" | "hi";
 interface Dict {
   navMap: string;
   navInvestigate: string;
+  navActions: string;
   navAnalytics: string;
   navSources: string;
   navAbout: string;
@@ -32,6 +33,7 @@ interface Dict {
 const en: Dict = {
   navMap: "Map",
   navInvestigate: "Investigate",
+  navActions: "Actions",
   navAnalytics: "Analytics",
   navSources: "Data Sources",
   navAbout: "About",
@@ -61,6 +63,7 @@ const en: Dict = {
 const hi: Partial<Dict> = {
   navMap: "नक्शा",
   navInvestigate: "जाँच",
+  navActions: "कार्रवाई",
   navAnalytics: "विश्लेषण",
   navSources: "डेटा स्रोत",
   navAbout: "परिचय",

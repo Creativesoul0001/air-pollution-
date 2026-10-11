@@ -5,6 +5,7 @@ import {
   Wind,
   Map as MapIcon,
   Search,
+  CheckSquare,
   BarChart3,
   Database,
   Info,
@@ -23,6 +24,7 @@ export function AppHeader() {
   const items: { view: View; label: string; icon: typeof MapIcon }[] = [
     { view: "map", label: L.navMap, icon: MapIcon },
     { view: "investigate", label: L.navInvestigate, icon: Search },
+    { view: "actions", label: L.navActions, icon: CheckSquare },
     { view: "analytics", label: L.navAnalytics, icon: BarChart3 },
     { view: "sources", label: L.navSources, icon: Database },
     { view: "about", label: L.navAbout, icon: Info },

@@ -5,7 +5,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { SearchAndCoverage } from "@/components/SearchAndCoverage";
 import { MapStage } from "@/components/MapStage";
 import { LocationPanel } from "@/components/LocationPanel";
-import { AnalyticsView, AboutView, DataSourcesView, InvestigateView } from "@/components/views";
+import { AnalyticsView, AboutView, ActionsView, DataSourcesView, InvestigateView } from "@/components/views";
 
 function Shell() {
   const { view } = useDashboard();
@@ -27,6 +27,7 @@ function Shell() {
           </>
         )}
         {view === "investigate" && <InvestigateView />}
+        {view === "actions" && <ActionsView />}
         {view === "analytics" && <AnalyticsView />}
         {view === "sources" && <DataSourcesView />}
         {view === "about" && <AboutView />}

@@ -14,7 +14,7 @@ import { fetchAirQuality, fetchLocationDetail, fetchWeather } from "./api";
 import { useLocationStats } from "@/hooks/useLocationStats";
 import type { AirCurrent, LocationDetail, LocationResult, LocationStats, WeatherCurrent } from "./types";
 
-export type View = "map" | "investigate" | "analytics" | "sources" | "about";
+export type View = "map" | "investigate" | "actions" | "analytics" | "sources" | "about";
 
 interface DashboardValue {
   coord: { lat: number; lon: number };
