@@ -109,7 +109,28 @@ New real endpoints (`backend`):
 - `GET /api/v1/locations/observations/points` — latest stored PM2.5 observation per location.
 - `GET /api/v1/locations/{id}` — location detail + latest observation.
 
-AQI shown is the **CPCB PM2.5 sub-index** computed from PM2.5 with documented breakpoints. Every reading carries a data-status label — **Live observation / Cached observation / Model estimate / Development fixture / Unavailable**. Source attribution, validated risk maps, and persistent action tracking are **not** implemented and are rendered as *unavailable* rather than fabricated.
+AQI shown is the **CPCB PM2.5 sub-index** computed from PM2.5 with documented breakpoints. Every reading carries a data-status label — **Live observation / Cached observation / Model estimate / Development fixture / Unavailable**. Evidence-based source investigation and persistent action tracking are implemented; a validated spatial risk map is not, and is shown as *unavailable* rather than fabricated.
+
+## Investigation, ground stations and action tracking
+
+Additional real endpoints:
+
+- `GET /api/v1/investigate?lat&lon` — evidence-based ranked hypotheses: combines **real wind** (Open-Meteo), **mapped sources** (OpenStreetMap/Overpass), ground readings where reachable, and the model air-quality estimate for context. Each hypothesis lists distance, bearing, upwind alignment, supporting evidence, contradicting evidence and uncertainty. Association only — never causation.
+- `GET /api/v1/stations?lat&lon` — real ground monitoring readings. Returns `unavailable` with explicit reasons when no station feed is reachable (see [`PROGRESS.md`](PROGRESS.md) for verified access findings). Model estimates are **never** returned here.
+- `POST/GET /api/v1/actions`, `POST /api/v1/actions/{id}/transition|assign|verify` — persistent action records with an authorized transition graph (illegal transitions → `422` with the allowed list), append-only audit history, and before/after verification that computes a delta **only** when both measurements have provenance (otherwise `insufficient_evidence`).
+
+### Enabling real ground-station data
+CPCB portals are unreachable and Sensor.Community has no Indian sensors, so `WAQI_TOKEN` (free from aqicn.org/data) is the supported path. Without it, the stations endpoint and UI report *unavailable* — no values are invented:
+
+```bash
+export WAQI_TOKEN=your-token
+```
+
+### Map
+The map uses **light OpenStreetMap tiles** with attribution (boundaries, city labels, roads, parks, water stay distinguishable). The previous dark overlay was removed. Tiles remain keyless; a vector/tile-API style (MapTiler/Carto/Google) would need a key and is not used.
+
+See [`PROGRESS.md`](PROGRESS.md) for the full implementation checklist, verified live results, and what still needs credentials.
+
 
 ```bash
 cd backend && uvicorn app.main:app --port 8000
