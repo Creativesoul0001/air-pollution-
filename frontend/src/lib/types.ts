@@ -32,6 +32,13 @@ export interface LocationStats {
   total_locations: number;
   locations_with_observations: number;
   locations_with_model_estimates: number;
+  model?: {
+    trained: boolean;
+    method?: string;
+    los_rmse?: number | null;
+    trained_at?: string | null;
+    provenance?: string;
+  };
   cities: string[];
   administrative_areas: string[];
   by_category: Record<string, number>;
@@ -219,4 +226,68 @@ export interface ActionRecord {
   updated_at: string | null;
   events?: ActionEventRecord[];
   verifications?: VerificationRecord[];
+}
+
+/* ----------------------------- Model estimates ----------------------------- */
+export interface ModelMetrics {
+  method: string;
+  n_samples: number;
+  n_locations: number;
+  rmse: number | null;
+  mae: number | null;
+  r2: number | null;
+  residual_quantiles_log: number[];
+  bias_note?: string;
+}
+
+export interface ModelCandidates {
+  ridge: ModelMetrics | null;
+  idw: ModelMetrics | null;
+}
+
+export interface ModelInfo {
+  selected: string;
+  trained_at: string;
+  metrics: ModelMetrics;
+  candidates: ModelCandidates | null;
+  dataset: { days: number; grid_step_deg: number; samples_used: number; n_locations: number } | null;
+  selection_note: string;
+  provenance: string;
+  locations_with_model_estimates: number;
+}
+
+export interface ModelEstimate {
+  status: string;
+  location: { lat: number; lon: number };
+  is_model_estimate: boolean;
+  kind: "model_estimate";
+  method: string;
+  provenance: string;
+  los_validation: ModelMetrics;
+  reference_timestamp: string | null;
+  pm25_p10: number | null;
+  pm25_p50: number | null;
+  pm25_p90: number | null;
+  note: string;
+}
+
+export interface ModelCell {
+  lat: number;
+  lon: number;
+  pm25_p10: number | null;
+  pm25_p50: number | null;
+  pm25_p90: number | null;
+}
+
+export interface ModelGrid {
+  status: string;
+  is_model_estimate: boolean;
+  provenance: string;
+  reference_timestamp: string | null;
+  resolution_deg: number;
+  count: number;
+  skipped_outside_radius: number;
+  donor_locations: number;
+  caveat: string;
+  cells: ModelCell[];
 }

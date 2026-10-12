@@ -17,7 +17,9 @@ import { useDashboard } from "@/lib/dashboard";
 import { POLLUTANTS, aqiFromPm25, pollutantMeta, windDirToCompass, hrsAgo } from "@/lib/aq";
 import { Badge, Button, Card, CardTitle, Gauge, Skeleton, Tabs } from "@/components/ui";
 import { DataAccuracyCard } from "./DataAccuracyCard";
+import { ModelEstimateCard } from "./panels/ModelEstimateCard";
 import { useStations } from "@/hooks/useStations";
+import { useModelEstimate } from "@/hooks/useModelEstimate";
 
 type Tab = "live" | "sources" | "actions" | "advice";
 
@@ -53,6 +55,11 @@ export function LocationPanel() {
   const pm25 = air?.pollutants?.pm2_5 ?? null;
   const aqi = pm25 != null ? aqiFromPm25(pm25) : null;
   const { data: ground, loading: groundLoading } = useStations(coord.lat, coord.lon);
+  const {
+    data: modelEstimate,
+    loading: modelLoading,
+    unavailable: modelUnavailable,
+  } = useModelEstimate(coord.lat, coord.lon);
 
   return (
     <Card className="flex h-auto min-h-0 flex-col !p-0 lg:h-full">
@@ -178,6 +185,12 @@ export function LocationPanel() {
                     </p>
                   )}
                 </div>
+
+                <ModelEstimateCard
+                  data={modelEstimate}
+                  loading={modelLoading}
+                  unavailable={modelUnavailable}
+                />
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl border border-dd-border p-3">

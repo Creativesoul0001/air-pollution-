@@ -7,6 +7,9 @@ import type {
   LocationDetail,
   LocationResult,
   LocationStats,
+  ModelEstimate,
+  ModelGrid,
+  ModelInfo,
   ObsPoint,
   PointRow,
   VerificationRecord,
@@ -159,4 +162,23 @@ export function assignAction(id: number, assignee: string, actor?: string) {
 
 export function verifyAction(id: number, body: Record<string, unknown>, actor?: string) {
   return mutate<VerificationRecord>(`/api/v1/actions/${id}/verify`, "POST", body, actor);
+}
+
+export function fetchModelMetrics(signal?: AbortSignal): Promise<Result<ModelInfo>> {
+  return getJson("/api/v1/model/metrics", signal);
+}
+
+export function fetchModelEstimate(
+  lat: number,
+  lon: number,
+  signal?: AbortSignal
+): Promise<Result<ModelEstimate>> {
+  return getJson(`/api/v1/model/estimate?lat=${lat}&lon=${lon}`, signal);
+}
+
+export function fetchModelGrid(
+  resolution = 0.05,
+  signal?: AbortSignal
+): Promise<Result<ModelGrid>> {
+  return getJson(`/api/v1/model/grid?resolution=${resolution}&limit=400`, signal);
 }

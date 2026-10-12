@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Search, MapPin, X, LocateFixed, Loader2, Database } from "lucide-react";
+import { Search, MapPin, X, LocateFixed, Loader2, Database, LineChart } from "lucide-react";
 import { useDashboard } from "@/lib/dashboard";
 import { searchLocations } from "@/lib/api";
 import { t } from "@/lib/i18n";
@@ -131,6 +131,13 @@ export function SearchAndCoverage() {
       hint: "Schools, hospitals, metro, parks, landmarks",
       to: "analytics",
       icon: <Search className="h-4 w-4 text-dd-purple" />,
+    },
+    {
+      label: L.coverageModel,
+      value: statsLoading || !stats ? "…" : stats.locations_with_model_estimates.toLocaleString("en-IN"),
+      hint: stats?.model?.trained ? `Validated model, RMSE ${stats.model.los_rmse} µg/m³` : "No model trained",
+      to: "analytics",
+      icon: <LineChart className="h-4 w-4 text-dd-accent" />,
     },
     {
       label: L.coverageCities,

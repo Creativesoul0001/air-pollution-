@@ -529,9 +529,30 @@ export function AnalyticsView() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Locations indexed" value={stats.total_locations.toLocaleString("en-IN")} />
         <Stat label="With observations" value={stats.locations_with_observations.toLocaleString("en-IN")} />
-        <Stat label="Model estimates" value="0" hint="No ML model deployed" />
+        <Stat
+          label="With model estimates"
+          value={stats.locations_with_model_estimates.toLocaleString("en-IN")}
+          hint={stats.model?.trained ? `RMSE ${stats.model.los_rmse} µg/m³` : "No model"}
+        />
         <Stat label="Cities / areas" value={String(stats.administrative_areas.length)} />
       </div>
+
+      {stats.model?.trained && (
+        <Card className="space-y-2">
+          <CardTitle>PM2.5 model validation</CardTitle>
+          <p className="text-sm text-dd-text/90">
+            Method: <strong>{stats.model.method}</strong> · leave-one-location-out RMSE{" "}
+            <strong className="tabular-nums">{stats.model.los_rmse}</strong> µg/m³ · n=36,600
+            hourly samples. Both candidate models were validated and the lower-error one is served.
+          </p>
+          <p className="text-xs text-dd-muted">
+            p10/p90 are empirical residual quantiles from the same cross-validation, not a full
+            predictive posterior. Estimates are interpolated from real observations and are never
+            presented as measurements.
+          </p>
+          <p className="text-[11px] text-dd-muted">Provenance: {stats.model.provenance}</p>
+        </Card>
+      )}
 
       <Card className="space-y-2">
         <CardTitle>Environmental coverage</CardTitle>

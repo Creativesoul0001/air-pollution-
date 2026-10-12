@@ -5,10 +5,11 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Layers, Maximize2, Minimize2, Wind as WindIcon, X } from "lucide-react";
 import { useDashboard } from "@/lib/dashboard";
-import { fetchObservationPoints, fetchPoints } from "@/lib/api";
+import { fetchModelGrid, fetchObservationPoints, fetchPoints } from "@/lib/api";
 import { MAP_LAYERS } from "@/lib/layers";
 import { aqiFromPm25, windDirToCompass } from "@/lib/aq";
-import type { ObsPoint, PointRow } from "@/lib/types";
+import { bandOf, bandStyle as bandStyleLib } from "@/lib/model";
+import type { ModelCell, ObsPoint, PointRow } from "@/lib/types";
 import { Button, Badge } from "@/components/ui";
 
 // Clean, LIGHT OpenStreetMap tiles (real roads, water, parks, boundaries, city labels).
@@ -29,6 +30,21 @@ function dot(color: string, size = 10, ring = false): HTMLDivElement {
   return el;
 }
 
+/** Heat cell for the model risk layer. */
+function heatCell(color: string, size: number): HTMLDivElement {
+  const el = document.createElement("div");
+  el.style.cssText = `height:${size}px;width:${size}px;border-radius:4px;background:${color};opacity:0.55;`;
+  return el;
+}
+
+const MODEL_BAND_ALPHA: Record<string, number> = {
+  good: 0.18,
+  moderate: 0.3,
+  poor: 0.45,
+  veryPoor: 0.6,
+  severe: 0.75,
+};
+
 export function MapStage() {
   const { coord, selected, selectLocation, weather } = useDashboard();
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -39,6 +55,7 @@ export function MapStage() {
   const [enabled, setEnabled] = useState<Set<string>>(new Set(["airQuality"]));
   const [obs, setObs] = useState<ObsPoint[]>([]);
   const [poi, setPoi] = useState<PointRow[]>([]);
+  const [modelCells, setModelCells] = useState<ModelCell[]>([]);
   const [layersOpen, setLayersOpen] = useState(true);
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -108,6 +125,21 @@ export function MapStage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabledPoiCats.join(",")]);
 
+  // Fetch the validated model risk surface (only when the layer is enabled).
+  useEffect(() => {
+    if (!enabled.has("modelRisk")) {
+      setModelCells([]);
+      return;
+    }
+    const c = new AbortController();
+    fetchModelGrid(0.05, c.signal).then((r) => {
+      if (c.signal.aborted) return;
+      // Only render cells that actually have a defensible estimate.
+      setModelCells(r.ok ? r.data.cells.filter((cell) => cell.pm25_p50 != null) : []);
+    });
+    return () => c.abort();
+  }, [enabled]);
+
   // Re-render markers on any relevant change.
   useEffect(() => {
     const map = mapRef.current;
@@ -140,6 +172,20 @@ export function MapStage() {
               has_observation: true,
             })
           );
+        }
+      }
+
+      // Model risk surface (interpolated estimates, clearly not measurements).
+      if (enabled.has("modelRisk")) {
+        for (const cell of modelCells) {
+          const value = cell.pm25_p50 as number;
+          const band = bandOf(value);
+          const { color } = bandStyleLib(band);
+          const alpha = MODEL_BAND_ALPHA[band] ?? 0.3;
+          const el = heatCell(color, 22);
+          el.style.opacity = String(alpha);
+          el.title = `Model estimate ~${Math.round(value)} µg/m³ PM2.5 (not a measurement)`;
+          add([cell.lon, cell.lat], el);
         }
       }
 
@@ -246,6 +292,15 @@ export function MapStage() {
                 className="h-3.5 w-3.5 accent-[var(--dd-warn)]"
               />
               <WindIcon className="h-3 w-3 text-dd-warn" /> Wind direction
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-xs text-dd-text">
+              <input
+                type="checkbox"
+                checked={enabled.has("modelRisk")}
+                onChange={() => toggleLayer("modelRisk")}
+                className="h-3.5 w-3.5 accent-[var(--dd-purple)]"
+              />
+              <span className="h-2.5 w-2.5 rounded-[3px] bg-dd-purple" /> Model risk surface
             </label>
           </div>
         )}

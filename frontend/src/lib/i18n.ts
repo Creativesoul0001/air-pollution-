@@ -17,6 +17,7 @@ interface Dict {
   coverageIndexed: string;
   coverageObserved: string;
   coveragePoi: string;
+  coverageModel: string;
   coverageCities: string;
   tabLive: string;
   tabSources: string;
@@ -47,6 +48,7 @@ const en: Dict = {
   coverageIndexed: "Locations indexed",
   coverageObserved: "With pollution data",
   coveragePoi: "Relevant points of interest",
+  coverageModel: "Locations with model estimates",
   coverageCities: "Cities / areas covered",
   tabLive: "Live Data",
   tabSources: "Sources",
@@ -68,6 +70,7 @@ const hi: Partial<Dict> = {
   navSources: "डेटा स्रोत",
   navAbout: "परिचय",
   subtitle: "स्वच्छ हवा। स्पष्ट कदम। स्वस्थ दिल्ली NCR।",
+  coverageModel: "मॉडल अनुमान वाले स्थान",
   searchPlaceholder: "दिल्ली NCR में इलाके, सेक्टर, सड़कें, स्कूल, अस्पताल, मेट्रो खोजें…",
   searching: "खोज रहे हैं…",
   refresh: "रिफ्रेश",
