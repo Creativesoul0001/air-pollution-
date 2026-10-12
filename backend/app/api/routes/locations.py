@@ -40,11 +40,43 @@ def locations_stats(db: Session = Depends(get_db)):
     }
     meta = db.get(DatasetMeta, "last_update")
     s, w, n, e = settings.bbox
+
+    # Real model coverage: distinct (lat, lon) sample locations, but only when a model
+    # has actually been trained and validated.
+    from app.models.air_sample import AirSample
+    from app.ml.store import load_model
+
+    model = load_model()
+    model_locations = 0
+    if model:
+        model_locations = int(
+            db.scalar(
+                select(func.count())
+                .select_from(select(AirSample.lat, AirSample.lon).distinct().subquery())
+            )
+            or 0
+        )
+    model_rmse = model["metrics"].get("rmse") if model else None
+    model_n = model["metrics"].get("n_samples") if model else None
+
     return {
         "bbox": {"south": s, "west": w, "north": n, "east": e},
         "total_locations": total,
         "locations_with_observations": with_obs,
-        "locations_with_model_estimates": 0,  # no ML model deployed yet (honest)
+        "locations_with_model_estimates": model_locations,
+        "model": (
+            {
+                "trained": True,
+                "method": model.get("selected"),
+                "los_rmse": model_rmse,
+                "trained_at": model.get("trained_at"),
+                "provenance": (
+                    f"{model.get('selected')} model, LOSO RMSE {model_rmse} ug/m3 (n={model_n})"
+                ),
+            }
+            if model
+            else {"trained": False}
+        ),
         "cities": sorted(set(cities)),
         "administrative_areas": sorted(set(admin)),
         "by_category": by_category,

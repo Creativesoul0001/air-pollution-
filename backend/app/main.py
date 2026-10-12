@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import actions, air, investigate, locations, stations
+from app.api.routes import actions, air, investigate, locations, model, stations
 from app.core.config import settings
 from app.models.db import init_db
 
@@ -29,6 +29,7 @@ app.include_router(air.router)
 app.include_router(investigate.router)
 app.include_router(stations.router)
 app.include_router(actions.router)
+app.include_router(model.router)
 
 
 @app.get("/api/v1/health")

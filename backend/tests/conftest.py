@@ -24,10 +24,11 @@ def _prepare_db():
 def _reset_tables():
     s = SessionLocal()
     from app.models.action import Action, ActionEvent, Verification
+    from app.models.air_sample import AirSample
     from app.models.location import DatasetMeta, Location, PollutionObservation
 
-    for model in (ActionEvent, Verification, Action, PollutionObservation, Location, DatasetMeta):
-        s.execute(model.__table__.delete())
+    for m in (ActionEvent, Verification, Action, AirSample, PollutionObservation, Location, DatasetMeta):
+        s.execute(m.__table__.delete())
     s.commit()
     s.close()
 
