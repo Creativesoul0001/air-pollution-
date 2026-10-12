@@ -126,6 +126,30 @@ CPCB portals are unreachable and Sensor.Community has no Indian sensors, so `WAQ
 export WAQI_TOKEN=your-token
 ```
 
+### Validated PM2.5 model
+
+A real PM2.5 model is trained on **36,600 hourly observations** (25 NCR sample locations × 60 days) from Open-Meteo archives, and validated with **leave-one-location-out (LOSO)**:
+
+| Candidate | LOSO RMSE (µg/m³) | LOSO R² | Verdict |
+|---|---|---|---|
+| Ridge regression (26 features, log-PM2.5) | 67.4 | −3.65 | rejected (worse than a mean baseline) |
+| **IDW interpolation between real observations** | **10.9** | **+0.878** | **selected & served** |
+
+Both candidates are always reported via `GET /api/v1/model/metrics` along with the selection note.
+
+```bash
+cd backend
+python -m app.ml.train --days 60 --grid-step 0.15   # fetch real data, train, validate, persist
+uvicorn app.main:app --port 8000
+```
+
+- `GET /api/v1/model/estimate?lat&lon` — `p10/p50/p90` with provenance and validation error
+- `GET /api/v1/model/grid?resolution=0.05` — interpolated risk surface (default is *finer*
+  than the training grid so cells are genuinely interpolated; out-of-radius cells are omitted)
+- `GET /api/v1/model/coverage` — unique `(lat, lon)` sample locations covered
+- Every response is tagged `is_model_estimate: true`; the uncertainty band is an empirical
+  LOSO residual-quantile band, not a full predictive posterior.
+
 ### Map
 The map uses **light OpenStreetMap tiles** with attribution (boundaries, city labels, roads, parks, water stay distinguishable). The previous dark overlay was removed. Tiles remain keyless; a vector/tile-API style (MapTiler/Carto/Google) would need a key and is not used.
 
